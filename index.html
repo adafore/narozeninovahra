@@ -874,14 +874,14 @@ function submitCode(qNum) {
 
   switch(qNum) {
     case 1: correct = val.toUpperCase() === code('q1').toUpperCase(); break;
-    case 2: { const n = parseInt(val); correct = n >= 40 && n <= 45; break; }
+    case 2: { const n = parseInt(val); correct = n >= 6 && n <= 6; break; }
     case 3: correct = val.toUpperCase() === code('q3').toUpperCase(); break;
     case 4: correct = val.toUpperCase() === code('q4').toUpperCase(); break;
     case 5: correct = val.toUpperCase() === code('q5').toUpperCase(); break;
     case 6: correct = String(parseInt(val)) === String(code('q6')); break;
     case 7: correct = val.toUpperCase() === code('q7').toUpperCase(); break;
     case 8: correct = Q8_ANSWERS.has(val.trim()); break;
-    case 9: { const n = parseInt(val); correct = n >= 46 && n <= 49; break; }
+    case 9: { const n = parseInt(val); correct = n >= 44 && n <= 46; break; }
     case 10: correct = val.toUpperCase() === code('q10').toUpperCase(); break;
     case 11: {
       const v = val.toLowerCase().replace(/[^a-z]/g,'');
