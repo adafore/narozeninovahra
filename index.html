@@ -688,7 +688,7 @@ function renderQ1(seq) {
 
 // Q2 — brick wall
 function renderQ2(seq) {
-  return qHeader(seq,'🧱','Zadej počet cihel ze kterých je složená největší zeď, co máme — ale vlastně nemáme.') +
+  return qHeader(seq,'🧱','Zadej počet řad betonových cihel ze kterých je složená zeď, co máme — ale vlastně nemáme.') +
     `<div class="input-row">
       <input type="number" id="q-input" placeholder="Počet cihel..." min="1" onkeydown="if(event.key==='Enter')submitCode(2)">
       <button class="btn btn-gold" onclick="submitCode(2)">Potvrdit</button>
@@ -777,7 +777,7 @@ function renderQ8(seq) {
 
 // Q9 — cans in cellar
 function renderQ9(seq) {
-  return qHeader(seq,'🥫','Kolik plechovek je ve sklepě?') +
+  return qHeader(seq,'🫙','Kolik zavařovacích skleniček je ve sklepě?') +
     `<p>Jdi se podívat do sklepa a spočítej plechovky. Kolik jich tam je? Zadej přesný počet.</p>` +
     `<div class="input-row">
       <input type="number" id="q-input" placeholder="Počet plechovek..." min="1" onkeydown="if(event.key==='Enter')submitCode(9)">
