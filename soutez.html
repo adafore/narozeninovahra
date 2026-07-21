@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dobrodružná Soutěž</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #FFD700;
+    --gold2: #FFA500;
+    --dark: #1a1035;
+    --darker: #120c28;
+    --card: rgba(255,255,255,0.07);
+    --border: rgba(255,215,0,0.3);
+    --green: #4ade80;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --purple: #c084fc;
+    --text: #f0e6ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: var(--darker);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* STARS BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(255,215,0,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 55% 20%, rgba(255,215,0,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 10%, rgba(255,215,0,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 65% 85%, rgba(255,215,0,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 70%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 35%, rgba(255,215,0,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 5% 50%, rgba(255,255,255,0.3) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* SCREEN SYSTEM */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4), 0 0 60px rgba(255,215,0,0.05);
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2.4rem;
+    color: var(--gold);
+    text-align: center;
+    text-shadow: 0 0 30px rgba(255,215,0,0.4);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.7rem;
+    color: var(--gold);
+    margin-bottom: 16px;
+    text-shadow: 0 0 20px rgba(255,215,0,0.3);
+  }
+  .subtitle {
+    text-align: center;
+    color: rgba(240,230,255,0.7);
+    margin-bottom: 28px;
+    font-size: 1.05rem;
+  }
+  p {
+    line-height: 1.7;
+    color: rgba(240,230,255,0.9);
+  }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-block;
+    padding: 14px 32px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: #1a1035;
+    box-shadow: 0 4px 20px rgba(255,215,0,0.3);
+  }
+  .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(255,215,0,0.5); }
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+  }
+  .btn-outline:hover { background: rgba(255,215,0,0.1); transform: translateY(-2px); }
+  .btn-green {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(34,197,94,0.3);
+  }
+  .btn-green:hover { transform: translateY(-2px); }
+  .btn-red {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+  }
+  .btn-block { display: block; width: 100%; text-align: center; margin-top: 16px; }
+
+  /* TEAM SELECT */
+  .team-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .team-card {
+    padding: 28px 20px;
+    border-radius: 18px;
+    border: 2px solid var(--border);
+    background: rgba(255,255,255,0.05);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s;
+  }
+  .team-card:hover { border-color: var(--gold); background: rgba(255,215,0,0.08); transform: scale(1.02); }
+  .team-card .emoji { font-size: 3rem; display: block; margin-bottom: 10px; }
+  .team-card .name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.5rem;
+    color: var(--gold);
+  }
+
+  /* QUESTION */
+  .question-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .q-number {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: #1a1035;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(255,215,0,0.3);
+  }
+  .q-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  /* INPUT */
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  input[type="text"], input[type="number"] {
+    flex: 1;
+    min-width: 160px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: rgba(255,255,255,0.07);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus { border-color: var(--gold); }
+  input::placeholder { color: rgba(240,230,255,0.35); }
+
+  /* FEEDBACK */
+  .feedback {
+    margin-top: 16px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: none;
+    animation: fadeIn 0.3s;
+  }
+  .feedback.correct { background: rgba(74,222,128,0.15); border: 1px solid var(--green); color: var(--green); display: block; }
+  .feedback.wrong { background: rgba(248,113,113,0.15); border: 1px solid var(--red); color: var(--red); display: block; }
+
+  /* PENALTY TIMER */
+  .penalty-bar {
+    display: none;
+    margin-top: 12px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    background: rgba(248,113,113,0.1);
+    border: 1px solid rgba(248,113,113,0.4);
+    color: var(--red);
+    font-weight: 700;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+  .penalty-bar.active { display: block; }
+  .penalty-progress {
+    margin-top: 8px;
+    height: 6px;
+    background: rgba(248,113,113,0.2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .penalty-fill {
+    height: 100%;
+    background: var(--red);
+    border-radius: 3px;
+    transition: width 1s linear;
+    box-shadow: 0 0 8px rgba(248,113,113,0.5);
+  }
+
+  /* MORSE */
+  .morse-display {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .morse-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .morse-label {
+    font-family: 'Baloo 2', cursive;
+    color: var(--gold);
+    width: 24px;
+    font-size: 1.1rem;
+  }
+  .morse-dots {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex: 1;
+  }
+  .morse-sym {
+    border-radius: 4px;
+    background: var(--gold);
+    transition: opacity 0.15s, box-shadow 0.15s;
+    box-shadow: 0 0 0 rgba(255,215,0,0);
+  }
+  .morse-sym.dot { width: 10px; height: 10px; border-radius: 50%; }
+  .morse-sym.dash { width: 28px; height: 10px; }
+  .morse-sym.lit { opacity: 1; box-shadow: 0 0 14px rgba(255,215,0,0.9); }
+  .morse-sym.dim { opacity: 0.18; }
+
+  .flash-btn-row { margin-top: 12px; display: flex; gap: 12px; align-items: center; }
+  .morse-legend {
+    margin-top: 18px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: rgba(240,230,255,0.6);
+    line-height: 1.8;
+  }
+
+  /* CODE DISPLAY */
+  .code-number-display {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2.5rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(255,215,0,0.4);
+    margin: 20px 0;
+    text-align: center;
+    background: rgba(255,215,0,0.05);
+    padding: 20px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+  .binary-hint {
+    text-align: center;
+    color: rgba(240,230,255,0.5);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+
+  /* LONG TEXT */
+  .long-text-box {
+    max-height: 180px;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: rgba(240,230,255,0.7);
+    word-break: break-all;
+    font-family: monospace;
+    margin: 16px 0;
+    scroll-behavior: smooth;
+  }
+  .long-text-box::-webkit-scrollbar { width: 6px; }
+  .long-text-box::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
+  .long-text-box::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 3px; }
+
+  /* DOWNLOAD */
+  .download-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    background: rgba(96,165,250,0.08);
+    border: 1px solid rgba(96,165,250,0.3);
+    border-radius: 14px;
+    margin: 20px 0;
+  }
+  .download-icon { font-size: 2.2rem; }
+  .download-info { flex: 1; }
+  .download-info strong { color: var(--blue); }
+  .download-info p { font-size: 0.85rem; color: rgba(240,230,255,0.6); margin-top: 4px; }
+
+  /* FINAL SCREEN */
+  .fireworks {
+    text-align: center;
+    font-size: 3rem;
+    margin: 20px 0;
+    animation: bounce 0.6s ease infinite alternate;
+  }
+  @keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-10px); }
+  }
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+  .flex-center { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    background: rgba(255,215,0,0.1);
+    border: 1px solid var(--border);
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  /* CONFETTI PARTICLES */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confetti-fall linear forwards;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 500px) {
+    .card { padding: 22px 18px; }
+    h1 { font-size: 1.9rem; }
+    .team-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .code-number-display { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- WELCOME SCREEN -->
+  <div id="screen-welcome" class="screen active">
+    <div style="text-align:center; padding: 30px 0 20px;">
+      <div style="font-size:4rem; margin-bottom:16px; animation: bounce 0.8s ease infinite alternate;">🧭</div>
+      <h1>Dobrodružná<br>Soutěž</h1>
+      <p class="subtitle">Výzva plná záhad a dobrodružství</p>
+    </div>
+    <div class="card">
+      <p style="text-align:center; margin-bottom:20px;">Vítej! Čeká tě série záhadných úkolů. Budeš hledat kódy schované na různých místech.</p>
+      <p style="text-align:center; color: rgba(240,230,255,0.6); font-size:0.9rem; margin-bottom:24px;">⚠️ Za špatnou odpověď čeká <strong style="color:var(--red)">20 sekund</strong> pauza</p>
+      <button class="btn btn-gold btn-block" onclick="goToTeamSelect()" style="font-size:1.1rem; padding:16px;">
+        🚀 Začít hru
+      </button>
+    </div>
+  </div>
+
+  <!-- TEAM SELECT -->
+  <div id="screen-team" class="screen">
+    <div style="padding: 20px 0 10px;">
+      <h1 style="margin-bottom:8px;">Vyber tým</h1>
+      <p class="subtitle">Komu patří tato hra?</p>
+    </div>
+    <div class="card">
+      <div class="team-cards">
+        <div class="team-card" onclick="selectTeam('slunce')">
+          <span class="emoji">☀️</span>
+          <div class="name">Slunce</div>
+        </div>
+        <div class="team-card" onclick="selectTeam('mesic')">
+          <span class="emoji">🌙</span>
+          <div class="name">Měsíc</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUESTION SCREEN -->
+  <div id="screen-question" class="screen">
+    <div style="padding: 20px 0 10px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+        <div class="badge"><span id="team-badge">?</span></div>
+      </div>
+    </div>
+    <div class="card" id="question-card">
+      <!-- dynamically filled -->
+    </div>
+  </div>
+
+  <!-- FINAL SCREEN -->
+  <div id="screen-final" class="screen">
+    <div style="padding: 20px 0 10px;">
+      <div class="fireworks">🎉🏆🎊</div>
+      <h1>Gratulujeme!</h1>
+      <p class="subtitle">Splnil/a jsi všechny úkoly!</p>
+    </div>
+    <div class="card">
+      <h2 style="text-align:center;">🏆 Vyhrál tým <span id="final-team-badge">?</span>!</h2>
+      <p style="text-align:center; color:var(--gold); font-weight:800; font-size:1.1rem; margin-top:16px;">Skvělá práce, soutěž je u konce! 🎉</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── STATE ──────────────────────────────────────────────────────────────
+let selectedTeam = '';
+let questionOrder = [];
+let currentQIndex = 0;
+let penaltyActive = false;
+let flashAnimInterval = null;
+const SAVE_KEY = 'soutez-progress-v1';
+
+// ─── QUESTIONS DATA ──────────────────────────────────────────────────────
+// Codes stored as arrays to avoid easy find-replace
+const CODES = {
+  q1: ['X','7','Q'],
+  q3: ['M','4','Z'],
+  q4: ['K','2','P'],
+  q5: ['T','9','R'],
+  q6: 558,
+  q7: ['J','5','N'],
+  q10: ['B','8','L'],
+};
+function code(k) {
+  if (typeof CODES[k] === 'number') return CODES[k];
+  return CODES[k].join('');
+}
+
+const LONG_TEXT = "xQmLAVEBRnoha7traktorbananKZZPQPQmrakostromcitroncitronVVVQX91a8m2t5lopataRRYTbananovykabelkabelkabel9991XQmP7zvonekAAAQQQTTTUUUokno38472galaxiebananlopatkaqWERTZXCVBNMmrak171717AAAAAAnananananananana7kostelkostelkostelkostelkostelR2x9Y8z1T7P3cibulemelounokurkacitronjahodabananQQQQQQQQQQQQQQ741kaktusvlockaVLOCKAVLOCKA88888xkcpqmrtnavzananasananasananasananasB7ryba1234567PLOCHAtraktorlopatkaRYCHLOSTmN44444444mrakostrojgalaxiokolejnicepapousekXYZXYZXYZXYZ72p9q4w1r8kostkatuneltuneltunelJABLKOMRAKSEMAFOR999991citroncokoladafazoleokurkafazolecokoladacitronRRRRRRRRRRRRRK7K7K7sroubsroubsroub991827VVXQPLMbananoknomrkevledniceKLOBOUKGALAXIEPONOZKA4444444444444qwertzxc123kostelpapirdrak22222MELONATORXRQPV5rybaoknorybabananmraktvgx9172831087654321mrakoknomelounananasvlockakolejnicejahodacitronkostkapapirdraktrpaslikQQAAMMZZTTRRYYvulkanmoststromstromstromstrom888888888888888888xQ7bR91mnP4lodBANANATORMEGAKOLECKOXYYZZ7714papousekpapousekQWQWQWmrakodrapcitronator55555VVVVVVVVVAnanasokno1z2x3c4v5b6n7m8q9w8e7r6t5y4u3i2o1p0SEMAFORSEMAFORdrakdrakdrakdrak919191ABCDXYZQTPMRYbananbananbananmraklopatkaokurkamelouncitronfazolejahodapapirkostka777x1x2x3x4x5x6RYCHLYKAKTUSMEGASTUL42rybnik111111111111mostektunelikgalaxionmrakatordrakovec8888QQQQPPPPMMMMZZZZananascitronbananoknooknooknolednicevlockasnihpapousekdratkolejnice7291847VVTTXQQLLPPAAkostelkostelkostelkostel5zebra7strom9vulkan3cajnik8houska2kompas4kolecko6obalka1plamen999999999999999999999rybaBANANSEMAFORMRAKLOPATAPAPIRKOSTKADRAXYQTRPLM918273645546372819VVVVQQQQAAAAZZZZXXXXCCCC123987456741852963ananasokurkamelounmrkevcitroncibulepapousektraktorvlockahodinysemaforgalaxiebananbananbananbananQxP7mR4tY9KkL2nB8WqE1rT5yU7iO3pA6sD0fG9hJ8kL7zX6cV5bN4mM3QQQQQQQQQQQQQQQQQQQQQQQQQQQQQ88837721499561027481mrakQQx71mrtBANANOVLAKcitroncitronXYPP4471kaktuslodlodlodVVVAAATTT991okurkaSEMAFORSEMAFORSEMAFOR3n8r2m7qpapirkostkadrakmraklopata7777777777777ZXCVQWERASDFTYUIgalaxionatorvlockovnik8882citronikbananatormrakovecoknooknooknooknoP7P7P7P7RRYYXXQQ99128374ananasmelounjahodacibulefazolemrkevpapousek123123123VVVVVVVVVVVVVVVVVlodniktraktorovnikkolejnicostrojQQQQMMMMZZZZTTTT8888111122229999dratdratdratdratdratdratBANANMRAKSEMAFORLOPATARYBAokurka918273645QxZmNpRtVwLyKjHgFdSaPPPPAAAAQQQQZZZZMMMMXXXX7777citroncitroncitroncitroncitronlodlodgalaxiekostelvulkanmoststromstromstromstromstromXYXYXYXYXYXYXY72727272vlockasnihledovecpapiratordrakovnik999888777666555444333222111okynkojahudkafazolkaananasovecQWERTQWERTQWERTbananmelounokurkacitronmraklopatarybakostkapapirVVTTRRPPMMQQAAXXCC9911882277334455dratkoleckoobalkaplamenkompascajnikhouskaSEMAFORATORMEGABANANRYCHLODMRAK8888888888888888888888n3v7q1x9m2r8t5k4p6l0zdrakdrakdrakdrakdrakdrakdrakdrak12345123451234512345ZZYYXXWWVVUUTTRRQQPPNNMMKKJJHHGGFFDDSSAAananasananasananasoknooknooknolednicelednicelednicecitronovecbananovecmrakoveclodovecrybovec7779911133355577799111333555XYZXYZXYZXYZXYZXYZkostelkostelkostelkostelvulkanvulkanmostmoststromstrompapirpapirpapirpapirBANANBANANBANANBANANQQQQQQQQQQQQQQQQQQQ91829182918291829182mrtxqpvlkzhgfdsaewoiuycnbv777888999111333555666222444000galaxiegalaxiegalaxiegalaxiekompaskompaskompasvlockavlockasnihsnihsnihjahodajahodacibulecibulemelounmelounokurkaokurkaSEMAFORSEMAFORSEMAFORSEMAFORSEMAFOR42x7m8q3r1t9y4u2i6o5p8a1s7d3f9g2h4j6k8l0z5x1c7v3b9n2m4QQAATTYYUUIIOOPPZZXXCCVVBBNNMM1239877418529632581473697777777777777777777777777777777papousektrpaslikkolejnicehodinydratkostkaobalkaplamenokynkokoleckocitronikbananikmrakostrojlodostrojvlockotronananasotronSEMAFORTRONGALAXIATORBANANIXRYBONATOR888444222999666111555333777000918273546372819546281937465728193QxQxQxQxQxQxQxQxQxQxQxQxQxQxananasmelounokurkacitroncibulemrkevfazolejahodapapousekdrakkostkastrommostvulkanlodrybamraklopataoknolednicepapirvlockasnihgalaxiekompasdratkolejnice7777ZZZZ8888XXXX1111QQQQ5555MMMM2222TTTT9999PPPP3333AAAA6666YYYY4444VVVV0000NNNN91847263554637281927463581927364518273645BANANSEMAFORMRAKLOPATADRAXYPAPIRKOSTKAGALAXIEKOLEJNICEVLOCKALEDNICEOKNOCITRONANANASMELOUNRYBASTROMMOSTVULKANQQQXPPVMMTRRZZAAYYCCNNKKHHFFDDSSEEWWEERRTTYYUUIIOOPPASDFGHJKLZXCVBNM1234567898765432124681357975318642lodlodlodlodlodlodlodlodlodlodlodlodlodlodlodlodmrakmrakmrakmrakmrakmrakmrakmrakmrakmrakcitroncitroncitroncitroncitronbananbananbananbananokurkaokurkaokurkaokurka888888x7QPLM9182BANANATORvvxQ77mraklodSEMAFORXYYZZ331okurkaokurkaokurkaTTTQQQPPP111999444ananascitronmelouncibulejahodafazole8888882kaktusdratkolejnicevlockasnihledovecpapirpapirpapirRRTTXY918273645546372819QQQQQQQQQQMMMMMMMMMMZZZZZZZZZZdrakdrakdrakdrakdrakdrakdraklodlodlodlodlodlodlodlodrybarybarybarybaryba777331555888222999111444666333BANANMRAKSEMAFORLOPATAKOSTKAPAPIRGALAXIEKOLECKOQxm7r2t8p1v9n4z6k3l5c8b2n7m1q4w9e6r3t5y8u2i7o1p4AAAAAAAAVVVVVVVVPPPPPPPPQQQQQQQQTTTTTTTTcitroncitroncitroncitroncitroncitronoknooknooknooknolednicelednicejedniceledniceSEMAFORATORMEGARYBAKOMPASOVNIK9918273645546372819475628193647281XYZXYZXYZXYZXYZXYZXYZXYZvulkanmoststromstromstromstromstrommostvulkanvulkanpapousektrpaslikhodinydratobalkaplamenkompaskolecko918273918273918273918273888777666555444333222111000999888777BANANBANANBANANBANANBANANBANANBANANananasananasananasananasananasananascitroncitroncitroncitroncitronmrakmrakmrakmrakmraklopatalopatalopataQWERTYUIOPASDFGHJKLZXCVBNMQAZWSXEDCRFVTGBYHNUJMIKOLP123698745214785236987412587412369874125874125kodjeJ5NVVTTQQPPMMXXCCZZAANNKKJJHHGGFFDDSSEEWWRRTTYUUIIOO9182736451827364518273645518273645rybniklodnikvlockotrongalaxiatorpapironikkostkatrondrakovecmrakostrojcitronatorbananovecokurkostroj88888888888888888888888888888888888888x1x9q3w7e2r8t4y6u1i5o9p2a7s3d8f4g6h1j5k9l2z7x3c8v4b6n1m5QQQMMMZZZTTTYYYUUUIIIOOOPPPAAASSSDDDFFFGGGHHHJJJKKKLLLrybarybarybarybarybarybarybarybarybaokurkaokurkaokurkaokurkaokurkaokurkaokurkaananasmelouncitroncibulejahodafazolemrkevpapousekdrakkostkaobalkaplamenkolejnicekompasSEMAFORSEMAFORSEMAFORSEMAFORSEMAFORSEMAFOR444444444444444444444444444444999999999999999999999999999999111111111111111111111111111111QXPVMTZAKLNRHGFDSWOEIUYCB9182746554637281991827465546372819galaxiegalaxiegalaxielodlodlodlodlodlodlodlodvlockavlockavlockavlockasnihsnihsnihsnihledniceledniceledniceoknooknooknooknooknoBANANIXMRAKONATORSEMAFORTRONPAPIRMEGARYBONIXKOSTKATORQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ7777777777777777777777777777777777777777777777777777XYZQTRPLMNBCVAAASDDFFGGHHJJKKLLPOIUYTREWQ918273645546372819274635819273645546372819okurkaSEMAFORmrakdrakpapirkostkagalaxievlockalodrybaananascitronmelounstrommostvulkankompasobalkaplamenkolejnicedrattrpaslikpapousekhodinyledovecsnihoknocibulejahodafazolemrkevlopata888111888111888111888111888111888111888111888111888111VVVVQQQQPPPPMMMMXXXXCCCCZZZZAAAATTTTRRRRYYYYUUUU999333666222555777444111000999333666222555777444111000BANANBANANBANANBANANBANANBANANBANANBANANBANANBANANBANANBANANBANANBANANBANANBANANQm8t2r7v1p9k4l6z3x5c8b2n7m1q4w9e6r3t5y8u2i7o1p4a9s6d3f8g2h7j1k5l9z4x6c3v8b2n7m1QQPPMMZZXXCCVVBBNNAAASDDFFGGHHJJKKLLPOIUYTREWQZXCVBNM12345678909876543211234567890987654321SEMAFORBANANMRAKLOPATADRAXYGALAXIEPAPIRKOSTKAKOLEJNICEKOMPASRYBALODVLOCKALEDNICESNIHOKNOVULKANMOSTSTROMCITRONANANASMELOUNOKURKACIBULEJAHODAFAZOLEMRKEV8888888888888888888888888888888888888888888888888888888888888888";
+
+// ─── VALID ANSWERS FOR Q8 ─────────────────────────────────────────────────
+const Q8_ANSWERS = new Set([2600,2506,2139,2614,2381,2593,3068,2835,2701,2468,2943,1952,2427,2194,2060,1827,2302,2514,2281,2756,2389,2375,2850,2617,2483,2250,2725,2937,2704,3179,2812,2296,2063,2538,2171,2625,2720,3195,2962,2828,2595,3070,3282,3049,3524,3157,2641,2408,2883,2516,2970,3064,2831,3306,2939,3393,2752].map(n=>String(n)));
+
+// ─── MORSE ANIMATION DATA ────────────────────────────────────────────────
+// T=dash, 9=....dash, R=dot-dash-dot
+// T: -
+// 9: ----. 
+// R: .-. 
+const MORSE_SEQUENCE = [
+  { letter: 'T', symbols: ['dash'] },
+  { letter: '9', symbols: ['dash','dash','dash','dash','dot'] },
+  { letter: 'R', symbols: ['dot','dash','dot'] },
+];
+
+// ─── LITEMATIC BASE64 ────────────────────────────────────────────────────
+const LITEMATIC_B64 = "H4sIAAAAAAAA/8VUwW4TMRCddJNm6zQHUClX+AguXEpp2luqiJRekbM7u7HqeII9K2hu/QZOXFDP/T6QuIVxms1KTSWEBGIvXr2x35sZz7MCUNB9h6UhF+TvvXN6hrmC9tgsMIHWYrlc/pD1MwC0ZL2WNYE9SE8dGzYYIH578OStpexqzJpxpC0yoxI8TaF9LoTQnxmHmdcFv9bGQw0fNvDHSntefJhEmk382VY8WD1RoEae5uijvmzl6znC7oSYaZZC75Pk4C2VJebQKbQNCBvC59uELAmFB5SPcAjDVNui0dktdGZcCR1HnqcpdMJUSx5pYK9NOeW/KZowzf+rYqDqXytuN/a3on8wHvf1PDob+9BrhjfO8873ndu7Qf/FmzjzB0c3PxWkIwoy7uSiJQRWa0vA2hIrC4zQ5ZL4ma1MfmGyq9ob+xfG4kO/rDevlJvNkVCNq8kl+iBqMQERHyLrXLOWAgYYMm/mvAq2I/UMh5SbwkhF0Pr25fzV1zb0InziUQraoImgxNpekq2kdwAv6zbWrpfWH0vHyUP3ONdn5LE+s8oyZniooH/qMivdcGX9RAje23oi5Oj9s3JCleMYEqjb1NVN4GBYX99AituEnh7BL1pFKQ6XBAAA";
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function goToTeamSelect() { showScreen('team'); }
+
+function saveProgress() {
+  if (!selectedTeam || !questionOrder.length) return;
+  localStorage.setItem(SAVE_KEY, JSON.stringify({
+    selectedTeam,
+    questionOrder,
+    currentQIndex
+  }));
+}
+
+function restoreProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+    if (!saved || !saved.selectedTeam || !Array.isArray(saved.questionOrder)) return false;
+    if (saved.questionOrder.length !== 11) return false;
+
+    selectedTeam = saved.selectedTeam;
+    questionOrder = saved.questionOrder;
+    currentQIndex = Number.isInteger(saved.currentQIndex) ? saved.currentQIndex : 0;
+
+    document.getElementById('team-badge').textContent = teamLabel(selectedTeam);
+    if (currentQIndex >= questionOrder.length) {
+      showFinalScreen();
+    } else {
+      showScreen('question');
+      renderQuestion();
+    }
+    return true;
+  } catch (err) {
+    localStorage.removeItem(SAVE_KEY);
+    return false;
+  }
+}
+
+function teamLabel(team) {
+  return team === 'slunce' ? '☀️ Slunce' : '🌙 Měsíc';
+}
+
+function selectTeam(team) {
+  selectedTeam = team;
+  // Shuffle questions 1-11 (indices 0-10)
+  const allQ = [1,2,3,4,5,6,7,8,9,10,11];
+  for (let i = allQ.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allQ[i], allQ[j]] = [allQ[j], allQ[i]];
+  }
+  questionOrder = allQ;
+  currentQIndex = 0;
+  document.getElementById('team-badge').textContent = teamLabel(team);
+  updateProgress();
+  saveProgress();
+  showScreen('question');
+  renderQuestion();
+}
+
+function updateProgress() {
+}
+
+// ─── RENDER QUESTION ──────────────────────────────────────────────────────
+function renderQuestion() {
+  if (flashAnimInterval) { clearInterval(flashAnimInterval); flashAnimInterval = null; }
+  const qNum = questionOrder[currentQIndex];
+  const card = document.getElementById('question-card');
+  
+  // Sequence number shown (current position, not question id)
+  const seqLabel = currentQIndex + 1;
+  
+  let html = '';
+
+  switch(qNum) {
+    case 1: html = renderQ1(seqLabel); break;
+    case 2: html = renderQ2(seqLabel); break;
+    case 3: html = renderQ3(seqLabel); break;
+    case 4: html = renderQ4(seqLabel); break;
+    case 5: html = renderQ5(seqLabel); break;
+    case 6: html = renderQ6(seqLabel); break;
+    case 7: html = renderQ7(seqLabel); break;
+    case 8: html = renderQ8(seqLabel); break;
+    case 9: html = renderQ9(seqLabel); break;
+    case 10: html = renderQ10(seqLabel); break;
+    case 11: html = renderQ11(seqLabel); break;
+  }
+  card.innerHTML = html;
+
+  // Post-render hooks
+  if (qNum === 5) startFlashAnim();
+}
+
+function qHeader(seq, icon, text) {
+  return `<div class="question-header">
+    <div class="q-text">${icon} ${text}</div>
+  </div>`;
+}
+
+function inputRow(placeholder, btnLabel, onSubmit) {
+  return `<div class="input-row">
+    <input type="text" id="q-input" placeholder="${placeholder}" onkeydown="if(event.key==='Enter')${onSubmit}">
+    <button class="btn btn-gold" onclick="${onSubmit}">${btnLabel}</button>
+  </div>
+  <div class="feedback" id="q-feedback"></div>
+  <div class="penalty-bar" id="q-penalty">
+    ⏳ Počkej <span id="penalty-secs">20</span>s před dalším pokusem
+    <div class="penalty-progress"><div class="penalty-fill" id="penalty-fill" style="width:100%"></div></div>
+  </div>`;
+}
+
+// Q1 — tree code
+function renderQ1(seq) {
+  return qHeader(seq,'🌳','Kód se skrývá v koruně velkého stromu.') +
+    `<p>Jdi se podívat na velký strom — kód je někde schovaný v jeho koruně. Zadej, co najdeš (nezáleží na velikosti písmen).</p>` +
+    inputRow('Zadej kód ze stromu...', 'Potvrdit', 'submitCode(1)');
+}
+
+// Q2 — brick wall
+function renderQ2(seq) {
+  return qHeader(seq,'🧱','Zadej počet řad betonových cihel ze kterých je složená zeď, co máme — ale vlastně nemáme.') +
+    `<div class="input-row">
+      <input type="number" id="q-input" placeholder="Počet cihel..." min="1" onkeydown="if(event.key==='Enter')submitCode(2)">
+      <button class="btn btn-gold" onclick="submitCode(2)">Potvrdit</button>
+    </div>
+    <div class="feedback" id="q-feedback"></div>
+    <div class="penalty-bar" id="q-penalty">
+      ⏳ Počkej <span id="penalty-secs">20</span>s před dalším pokusem
+      <div class="penalty-progress"><div class="penalty-fill" id="penalty-fill" style="width:100%"></div></div>
+    </div>`;
+}
+
+// Q3 — swing code
+function renderQ3(seq) {
+  return qHeader(seq,'🛝','Kód ti prozradí houpačka.') +
+    `<p>Jdi se podívat na houpačku — tam najdeš kód. Zadej ho sem (nezáleží na velikosti písmen).</p>` +
+    inputRow('Zadej kód z houpačky...', 'Potvrdit', 'submitCode(3)');
+}
+
+// Q4 — litematic
+function renderQ4(seq) {
+  return qHeader(seq,'⛏️','Kód se skrývá v tomto souboru.') +
+    `<p>Níže si stáhni soubor. Kód je schován uvnitř — budeš ho muset najít sám/sama.</p>
+    <div class="download-box">
+      <div class="download-icon">📦</div>
+      <div class="download-info">
+        <strong>kod.litematic</strong>
+        <p>Minecraft Litematica soubor — prozkoumej ho dobře!</p>
+      </div>
+      <button class="btn btn-outline" onclick="downloadLitematic()">⬇ Stáhnout</button>
+    </div>` +
+    inputRow('Zadej nalezený kód...', 'Potvrdit', 'submitCode(4)');
+}
+
+// Q5 — morse
+function renderQ5(seq) {
+  return qHeader(seq,'💡','Kód ti prozradí toto blikání.') +
+    `<div class="flash-btn-row">
+      <button id="flash-code-btn" class="btn btn-outline" onclick="startFlashAnim()" aria-label="Blikat kód" title="Blikat kód" style="font-size:1.1rem; padding:18px 28px; min-width:180px; min-height:58px;"></button>
+    </div>` +
+    inputRow('Zadej přečtený kód...', 'Potvrdit', 'submitCode(5)');
+}
+
+// Q6
+function renderQ6(seq) {
+  return `<div class="code-number-display">1000101110</div>` +
+    `<div class="input-row">
+      <input type="number" id="q-input" placeholder="Zadej výsledek..." onkeydown="if(event.key==='Enter')submitCode(6)">
+      <button class="btn btn-gold" onclick="submitCode(6)">Potvrdit</button>
+    </div>
+    <div class="feedback" id="q-feedback"></div>
+    <div class="penalty-bar" id="q-penalty">
+      ⏳ Počkej <span id="penalty-secs">20</span>s před dalším pokusem
+      <div class="penalty-progress"><div class="penalty-fill" id="penalty-fill" style="width:100%"></div></div>
+    </div>`;
+}
+
+// Q7 — long text
+function renderQ7(seq) {
+  return qHeader(seq,'📜','Kód je tady napsaný — stačí ho najít.') +
+    `<p>Někde v textu níže se skrývá kód.</p>
+    <div class="long-text-box" id="long-text-box">${LONG_TEXT}</div>` +
+    inputRow('Zadej nalezený kód...', 'Potvrdit', 'submitCode(7)');
+}
+
+// Q8 — hidden numbers
+function renderQ8(seq) {
+  return qHeader(seq,'🔢','Kód je součet 5 skrytých čísel.') +
+    `<p>Na různých místech jsou schována čísla. Najdi jich 5, sečti je a výsledek zadej jako kód.</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin:16px 0;">
+      <div style="padding:10px 16px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:10px; font-size:0.9rem; color:rgba(240,230,255,0.6);">🔍 Čísla jsou dobře schovaná — hledej pozorně!</div>
+    </div>` +
+    `<div class="input-row">
+      <input type="number" id="q-input" placeholder="Součet čísel..." onkeydown="if(event.key==='Enter')submitCode(8)">
+      <button class="btn btn-gold" onclick="submitCode(8)">Potvrdit</button>
+    </div>
+    <div class="feedback" id="q-feedback"></div>
+    <div class="penalty-bar" id="q-penalty">
+      ⏳ Počkej <span id="penalty-secs">20</span>s před dalším pokusem
+      <div class="penalty-progress"><div class="penalty-fill" id="penalty-fill" style="width:100%"></div></div>
+    </div>
+    <!-- Hidden numbers for the treasure hunt: 512, 768, 1024, 128, 256 -->
+    <!-- Součet: 2688 -->
+    <!-- Ale správných odpovědí je mnoho - viz seznam -->`;
+  // Note: the 5 hidden numbers in this page's source are: 512, 768, 1024, 128, 256 (sum = 2688)
+}
+
+// Q9 — cans in cellar
+function renderQ9(seq) {
+  return qHeader(seq,'🫙','Kolik zavařovacích skleniček je ve sklepě?') +
+    `<p>Jdi se podívat do sklepa a spočítej plechovky. Kolik jich tam je? Zadej přesný počet.</p>` +
+    `<div class="input-row">
+      <input type="number" id="q-input" placeholder="Počet plechovek..." min="1" onkeydown="if(event.key==='Enter')submitCode(9)">
+      <button class="btn btn-gold" onclick="submitCode(9)">Potvrdit</button>
+    </div>
+    <div class="feedback" id="q-feedback"></div>
+    <div class="penalty-bar" id="q-penalty">
+      ⏳ Počkej <span id="penalty-secs">20</span>s před dalším pokusem
+      <div class="penalty-progress"><div class="penalty-fill" id="penalty-fill" style="width:100%"></div></div>
+    </div>`;
+}
+
+// Q10 — storage path
+function renderQ10(seq) {
+  return qHeader(seq,'☁️','Kód najdeš na tomto úložišti.') +
+    `<div class="download-box" style="margin:20px 0;">
+      <div class="download-info">
+        <strong style="word-break:break-all;">d/19WO5VwyZwOEYi_Hzl9NN2cHbPMKit6T8</strong>
+      </div>
+    </div>` +
+    inputRow('Zadej kód...', 'Potvrdit', 'submitCode(10)');
+}
+
+// Q11 — YouTube grammar mistake
+function renderQ11(seq) {
+  return qHeader(seq,'📺','V mém videu na kanále Hrajemsi jsem udělal gramatickou chybu.') +
+    `<p>Na YouTube kanálu <strong style="color:var(--gold)">Hrajemsi</strong> je video, ve kterém je gramatická chyba. Najdi toto video a napiš slovo, ve kterém je chyba.</p>
+    <div style="margin:16px 0; padding:14px; background:rgba(255,255,255,0.04); border-radius:12px; border:1px solid var(--border);">
+      <p style="font-size:0.9rem; color:rgba(240,230,255,0.6);">💡 Tip: Hledej pečlivě ve videích na kanálu. Chyba je přímo ve videu!</p>
+    </div>` +
+    inputRow('Zadej chybné slovo...', 'Potvrdit', 'submitCode(11)');
+}
+
+// ─── DOWNLOAD LITEMATIC ───────────────────────────────────────────────────
+function downloadLitematic() {
+  const byteStr = atob(LITEMATIC_B64);
+  const ab = new ArrayBuffer(byteStr.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteStr.length; i++) ia[i] = byteStr.charCodeAt(i);
+  const blob = new Blob([ab], { type: 'application/octet-stream' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'kod.litematic';
+  a.click();
+}
+
+// ─── FLASH ANIMATION ──────────────────────────────────────────────────────
+function startFlashAnim() {
+  if (flashAnimInterval) clearInterval(flashAnimInterval);
+  const btn = document.getElementById('flash-code-btn');
+  if (!btn) return;
+  const UNIT = 240;
+  btn.classList.remove('btn-gold');
+  btn.classList.add('btn-outline');
+  btn.textContent = '';
+
+  const seq = [];
+  MORSE_SEQUENCE.forEach((row, ri) => {
+    row.symbols.forEach((sym, si) => {
+      seq.push({ type: 'on', duration: sym === 'dash' ? UNIT * 3 : UNIT });
+      seq.push({ type: 'off', duration: UNIT });
+    });
+    seq.push({ type: 'off', duration: UNIT * 3 });
+  });
+  seq.push({ type: 'done' });
+
+  let i = 0;
+  function step() {
+    if (i >= seq.length) return;
+    const ev = seq[i++];
+    if (ev.type === 'on') {
+      btn.classList.remove('btn-outline');
+      btn.classList.add('btn-gold');
+      setTimeout(step, ev.duration);
+    } else if (ev.type === 'off') {
+      btn.classList.remove('btn-gold');
+      btn.classList.add('btn-outline');
+      setTimeout(step, ev.duration);
+    } else if (ev.type === 'done') {
+      btn.textContent = '';
+    }
+  }
+  step();
+}
+
+// ─── SUBMIT CODE ──────────────────────────────────────────────────────────
+function submitCode(qNum) {
+  if (penaltyActive) return;
+  const inp = document.getElementById('q-input');
+  if (!inp) return;
+  const val = inp.value.trim();
+  
+  let correct = false;
+
+  switch(qNum) {
+    case 1: correct = val.toUpperCase() === code('q1').toUpperCase(); break;
+    case 2: { const n = parseInt(val); correct = n >= 6 && n <= 6; break; }
+    case 3: correct = val.toUpperCase() === code('q3').toUpperCase(); break;
+    case 4: correct = val.toUpperCase() === code('q4').toUpperCase(); break;
+    case 5: correct = val.toUpperCase() === code('q5').toUpperCase(); break;
+    case 6: correct = String(parseInt(val)) === String(code('q6')); break;
+    case 7: correct = val.toUpperCase() === code('q7').toUpperCase(); break;
+    case 8: correct = Q8_ANSWERS.has(val.trim()); break;
+    case 9: { const n = parseInt(val); correct = n >= 44 && n <= 46; break; }
+    case 10: correct = val.toUpperCase() === code('q10').toUpperCase(); break;
+    case 11: {
+      const v = val.toLowerCase().replace(/[^a-z]/g,'');
+      correct = v === 'bottle' || v === 'botle'; break;
+    }
+  }
+
+  if (correct) {
+    showFeedback(true, '✅ Správně! Výborná práce!');
+    updateProgress();
+    inp.disabled = true;
+    setTimeout(() => {
+      currentQIndex++;
+      if (currentQIndex >= 11) {
+        saveProgress();
+        showFinalScreen();
+      } else {
+        saveProgress();
+        showScreen('question');
+        renderQuestion();
+      }
+    }, 1200);
+  } else {
+    showFeedback(false, '❌ Špatně! Zkus to znovu po uplynutí penalizace.');
+    startPenalty();
+  }
+}
+
+function showFeedback(ok, msg) {
+  const fb = document.getElementById('q-feedback');
+  if (!fb) return;
+  fb.textContent = msg;
+  fb.className = 'feedback ' + (ok ? 'correct' : 'wrong');
+}
+
+function startPenalty() {
+  penaltyActive = true;
+  const bar = document.getElementById('q-penalty');
+  const secsEl = document.getElementById('penalty-secs');
+  const fill = document.getElementById('penalty-fill');
+  if (!bar) return;
+  bar.classList.add('active');
+  fill.style.width = '100%';
+  let secs = 20;
+  secsEl.textContent = secs;
+  const interval = setInterval(() => {
+    secs--;
+    if (secsEl) secsEl.textContent = secs;
+    if (fill) fill.style.width = (secs / 20 * 100) + '%';
+    if (secs <= 0) {
+      clearInterval(interval);
+      penaltyActive = false;
+      bar.classList.remove('active');
+      const inp = document.getElementById('q-input');
+      if (inp) { inp.value = ''; inp.focus(); }
+    }
+  }, 1000);
+}
+
+// ─── FINAL SCREEN ────────────────────────────────────────────────────────
+function showFinalScreen() {
+  document.getElementById('final-team-badge').textContent = teamLabel(selectedTeam);
+  showScreen('final');
+  spawnConfetti();
+}
+
+// ─── CONFETTI ─────────────────────────────────────────────────────────────
+function spawnConfetti() {
+  const colors = ['#FFD700','#FFA500','#FF6B6B','#4ADE80','#60A5FA','#C084FC','#FFFFFF'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left: ${Math.random()*100}vw;
+        top: -20px;
+        background: ${colors[Math.floor(Math.random()*colors.length)]};
+        width: ${6+Math.random()*8}px;
+        height: ${6+Math.random()*8}px;
+        border-radius: ${Math.random()>0.5?'50%':'2px'};
+        animation-duration: ${2+Math.random()*2}s;
+        animation-delay: ${Math.random()*0.5}s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 60);
+  }
+}
+restoreProgress();
+</script>
+</body>
+</html>
